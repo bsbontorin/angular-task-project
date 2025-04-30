@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import Task from 'app/models/task.contract';
 import { TaskServiceService } from 'app/services/task.service';
 import { Observable } from 'rxjs';
@@ -21,10 +21,10 @@ export class HomeComponent {
   private taskService = inject(TaskServiceService);
 
   // * VARIABLES
-  public tasks$ = this.getTasks$;
+  public tasks$ = this.taskService.getTasks$();
 
   // * GETs
-  private get getTasks$(): Observable<Array<Task>> {
+  private getTasks$(): Observable<Array<Task>> {
     return this.taskService.getTasks$();
   }
 }
