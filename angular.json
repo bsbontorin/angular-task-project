@@ -6,6 +6,11 @@
     "angular-task-project": {
       "projectType": "application",
       "schematics": {
+        "@schematics/angular": {
+          "component": {
+            "changeDetection": "OnPush"
+          }
+        },
         "@schematics/angular:component": {
           "style": "scss"
         }

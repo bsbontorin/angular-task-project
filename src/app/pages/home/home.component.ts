@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import Task from 'app/models/task.contract';
 import { TaskServiceService } from 'app/services/task.service';
 import { Observable } from 'rxjs';
@@ -14,7 +14,8 @@ import { Observable } from 'rxjs';
 
     <p>home works!</p>
   `,
-  styles: ``,
+  styles: [``],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
   // * INJECTS
