@@ -1,27 +1,11 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "extends": "./tsconfig.json",
-
   "compilerOptions": {
-    "baseUrl": "src",
-    "outDir": "./out-tsc/app",
     "types": [],
-    "lib": ["ES2022", "dom"],
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "Node",
-    "useDefineForClassFields": true,
-    "experimentalDecorators": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  },
-
-  "angularCompilerOptions": {
-    "strictTemplates": true,
-    "fullTemplateTypeCheck": true,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "enableI18nLegacyMessageIdFormat": false
+    "outDir": "./out-tsc/app",
+    "baseUrl": "src"
   },
   "files": ["src/main.ts"],
   "include": ["src/**/*.d.ts"]
