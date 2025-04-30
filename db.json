@@ -1,0 +1,13 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "name": "Name of your task here",
+      "description": "Description here",
+      "date": "2025-04-30T14:25:36.123Z",
+      "effort": 8,
+      "status": "todo",
+      "responsible": "Name of responsible here"
+    }
+  ]
+}
