@@ -1,3 +1,6 @@
+<!-- Improved compatibility of back to top link -->
+<a id="readme-top"></a>
+
 [![License: AGPL v3.0][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
