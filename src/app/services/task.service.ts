@@ -21,4 +21,14 @@ export class TaskServiceService {
     const url = `${environment.baseUrlApi}/tasks/${taskId}`;
     return this.http.delete(url);
   }
+
+  public updateTask$(task: Partial<Task>): any {
+    const url = `${environment.baseUrlApi}/tasks/${task.id}`;
+    return this.http.put(url, task);
+  }
+
+  public createTask$(task: Partial<Task>): any {
+    const url = `${environment.baseUrlApi}/tasks`;
+    return this.http.post(url, task);
+  }
 }

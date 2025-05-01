@@ -13,16 +13,18 @@ import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } fr
 import { UiButtonComponent } from './../../components/ui-button/ui-button.component';
 import { TableColumns } from './enums/table-columns';
 import { TaskAction } from './enums/task-action';
+import { UiFormComponent } from 'app/components/ui-form/ui-form.component';
+import FormSubmit from 'app/models/form-submit.contract';
 
 @Component({
   selector: 'home',
-  imports: [AsyncPipe, DatePipe, UiButtonComponent, UiModalComponent, UiPaginatorComponent],
+  imports: [AsyncPipe, DatePipe, UiButtonComponent, UiModalComponent, UiPaginatorComponent, UiFormComponent],
   template: `
     <section class="container">
       <h1 class="container__title">Activity table</h1>
 
       <div class="container__actions">
-        <ui-button [buttonModifier]="'success'" [buttonText]="'Add Task'" />
+        <ui-button [buttonModifier]="'success'" [buttonText]="'Add Task'" (callback)="createTask()" />
       </div>
 
       <div class="container__table">
@@ -72,15 +74,24 @@ import { TaskAction } from './enums/task-action';
     </section>
 
     <!-- custom modal to delete tasks -->
-    <ui-modal #modal>
-      <div class="delete-modal__container">
-        @if(modal.data$ | async; as data) {
-        <p>{{ data?.name }}</p>
+    <ui-modal #deleteModal>
+      <div class="modal__container">
+        @if(deleteModal.data$ | async; as data) {
+        <p>{{ data?.task?.name }}</p>
 
-        <div class="delete-modal__actions">
-          <ui-button [buttonModifier]="'danger'" [buttonText]="'Delete'" (callback)="closeModal(data.action, data.id)" />
+        <div class="modal__actions">
+          <ui-button [buttonModifier]="'danger'" [buttonText]="'Delete'" (callback)="closeModal(data.action, data?.task)" />
           <ui-button [buttonModifier]="'secondary'" [buttonText]="'Cancel'" (callback)="closeModal()" />
         </div>
+        }
+      </div>
+    </ui-modal>
+
+    <!-- custom modal to create/update tasks -->
+    <ui-modal #createOrUpdateModal>
+      <div class="modal__container">
+        @if(createOrUpdateModal.data$ | async; as data) {
+        <ui-form class="form__container" [action]="data.action" [task]="data?.task" (formSubmit)="closeModal($event.action, $event.task)" />
         }
       </div>
     </ui-modal>
@@ -185,14 +196,20 @@ import { TaskAction } from './enums/task-action';
         }
       }
 
-      .delete-modal__container {
+      .modal__container {
         @include flexbox(column, flex-start, center);
+        width: 100%;
 
-        & .delete-modal__actions {
+        & .modal__actions {
           @include flexbox(row, center center);
           gap: 1rem;
           margin-top: 1rem;
         }
+      }
+
+      .form__container {
+        @include flexbox(column, flex-start, center);
+        width: 100%;
       }
     `,
   ],
@@ -203,7 +220,8 @@ export class HomeComponent {
   private taskService = inject(TaskServiceService);
 
   // * DIRECTIVES
-  @ViewChild('modal') modal!: UiModalComponent;
+  @ViewChild('deleteModal') deleteModal!: UiModalComponent;
+  @ViewChild('createOrUpdateModal') createOrUpdateModal!: UiModalComponent;
 
   // * OBSERVABLES
   private filterDataSource$ = new BehaviorSubject<TableSort>({ column: { key: '', value: '' }, direction: 'asc' });
@@ -224,7 +242,6 @@ export class HomeComponent {
     return this.updateDataSource$.asObservable().pipe(
       filter(Boolean),
       switchMap(() => {
-        console.log('entrou :>> ');
         return this.taskService.getTasks$().pipe(
           tap((response) => {
             this.paginatorDataSource$.next({ page: 1, pageSize: 5, total: response?.length || 5 });
@@ -247,6 +264,10 @@ export class HomeComponent {
                 return mappedTasks.sort((a, b) => {
                   const valueA = a[column.key as keyof Task];
                   const valueB = b[column.key as keyof Task];
+
+                  if (!valueA || !valueB) {
+                    return 0;
+                  }
 
                   const isNumeric = !isNaN(+valueA) && !isNaN(+valueB);
 
@@ -298,17 +319,28 @@ export class HomeComponent {
     this.paginatorDataSource$.next({ ...oldValue, page: event });
   }
 
-  public openModal(action: TaskAction, task: Task): void {
+  // * MODAL
+  public createTask(): void {
+    this.openModal(TaskAction.CREATE);
+  }
+
+  public openModal(action: TaskAction, task?: Task): void {
     const titles = {
       [TaskAction.CREATE]: 'Create task',
       [TaskAction.UPDATE]: 'Update task',
       [TaskAction.DELETE]: 'Do you really want to delete this task?',
     };
 
-    this.modal.open({ ...task, action, title: titles[action] });
+    if (action === TaskAction.DELETE) {
+      this.deleteModal.open({ task, action, title: titles[action] });
+    }
+
+    if (action !== TaskAction.DELETE) {
+      this.createOrUpdateModal.open({ task, action, title: titles[action] });
+    }
   }
 
-  public closeModal(action?: TaskAction, taskId?: string): void {
+  public closeModal(action?: TaskAction, task?: Task | Partial<Task>, submit?: FormSubmit): void {
     const messages = {
       [TaskAction.CREATE]: 'Task created successfully!',
       [TaskAction.UPDATE]: 'Task updated successfully!',
@@ -317,8 +349,16 @@ export class HomeComponent {
 
     let observable = of();
 
-    if (action === TaskAction.DELETE && taskId) {
-      observable = this.taskService.deleteTask$(taskId);
+    if (action === TaskAction.UPDATE) {
+      observable = this.taskService.updateTask$(task as Task);
+    }
+
+    if (action === TaskAction.CREATE) {
+      observable = this.taskService.createTask$(task as Task);
+    }
+
+    if (action === TaskAction.DELETE && task?.id) {
+      observable = this.taskService.deleteTask$(task.id);
     }
 
     observable
@@ -326,12 +366,12 @@ export class HomeComponent {
         take(1),
         tap((response) => {
           alert(messages[action!]);
-          console.log('response :>> ', response);
           this.updateDataSource$.next(true);
         }),
       )
       .subscribe();
 
-    this.modal.close();
+    this.deleteModal.close();
+    this.createOrUpdateModal.close();
   }
 }

@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import Task from 'app/models/task.contract';
 import UiModalData from 'app/models/ui-modal-data.contract';
 import { BehaviorSubject, map, Observable, of } from 'rxjs';
 
@@ -106,7 +107,9 @@ export class UiModalComponent {
 
   // * METHODS
   public open(data?: UiModalData): void {
-    this.modalData.next(data);
+    if (data) {
+      this.modalData.next({ title: data.title, action: data.action, task: data.task });
+    }
 
     this.dialogRef.nativeElement.showModal();
   }
@@ -121,6 +124,10 @@ export class UiModalComponent {
   }
 
   public get getData$(): Observable<UiModalData | undefined> {
-    return this.modalData.asObservable();
+    return this.modalData.asObservable().pipe(
+      map((data) => {
+        return data;
+      }),
+    );
   }
 }

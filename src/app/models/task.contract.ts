@@ -1,6 +1,6 @@
 export default interface Task {
-  id: string;
-  date: Date;
+  id: string | null;
+  date: string;
   name: string;
   effort: number;
   status: 'todo' | 'in-progress' | 'done';

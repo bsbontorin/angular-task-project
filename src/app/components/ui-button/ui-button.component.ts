@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
       {{ buttonText }}
     </a>
     } @if(!link) {
-    <button type="button" class="ui-button" [class]="buttonModifier" (click)="handleClick($event)">
+    <button class="ui-button" [type]="buttonType" [disabled]="buttonDisabled" [class]="buttonModifier" (click)="handleClick($event)">
       {{ buttonText }}
     </button>
     }
@@ -34,6 +34,11 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
         &:hover {
           box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
           filter: brightness(80%);
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
         }
 
         &.alert {
@@ -63,9 +68,11 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 export class UiButtonComponent {
   // * DIRECTIVES
   @Input() link!: string;
+  @Input() buttonType: string = 'button';
   @Input() buttonText?: string;
   @Input() buttonTarget: '_blank' | '_parent' | '_self' | '_top' | '_self' = '_top';
   @Input() buttonModifier = 'primary';
+  @Input() buttonDisabled: boolean = false;
   @Output() callback = new EventEmitter<void>();
 
   public handleClick(event: MouseEvent): void {
