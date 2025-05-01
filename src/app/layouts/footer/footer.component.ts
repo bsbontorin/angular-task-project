@@ -18,12 +18,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       .footer {
         color: var(--white);
         background-color: var(--gray-700);
-        margin: auto 2rem;
+        margin: auto 2rem 1rem 2rem;
         padding: 0.5rem 1rem;
         font-size: 0.75rem;
         text-align: center;
         border-radius: 0.5rem;
-        margin-bottom: 1rem;
 
         &__content {
           @include flexbox(column, center, center);

@@ -1,9 +1,9 @@
 export default interface Task {
   id: number;
-  name: string;
-  description: string;
   date: Date;
+  name: string;
   effort: number;
   status: 'todo' | 'in-progress' | 'done';
+  description: string;
   responsible: string;
 }

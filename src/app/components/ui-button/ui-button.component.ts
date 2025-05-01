@@ -1,42 +1,61 @@
 import { ChangeDetectionStrategy, Component, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'ui-link',
+  selector: 'ui-button',
   imports: [],
   template: `
-    <a [href]="link" class="ui-link" [class]="buttonModifier" [target]="buttonTarget" rel="noopener" (click)="handleClick($event)">
+    @if(link) {
+    <a [href]="link" class="ui-button" [class]="buttonModifier" [target]="buttonTarget" rel="noopener" (click)="handleClick($event)">
       {{ buttonText }}
     </a>
+    } @if(!link) {
+    <button type="button" class="ui-button" [class]="buttonModifier" (click)="handleClick($event)">
+      {{ buttonText }}
+    </button>
+    }
   `,
   styles: [
     `
-      .ui-link {
+      .ui-button {
+        color: var(--white);
+        all: unset;
+        cursor: pointer;
+        display: inline-block;
         padding: 0.375rem 0.75rem;
         font-size: 0.875rem;
-        border-radius: 0.25rem;
+        text-align: center;
         transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+        border-radius: 0.25rem;
 
         &:hover {
           box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+          filter: brightness(80%);
+        }
+
+        &.alert {
+          background-color: var(--yellow-500);
+        }
+
+        &.danger {
+          background-color: var(--rose-500);
         }
 
         &.primary {
-          color: var(--white);
           background-color: var(--sky-500);
+        }
 
-          &:hover {
-            background-color: var(--sky-600);
-          }
+        &.success {
+          background-color: var(--green-500);
         }
       }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UiLinkComponent {
+export class UiButtonComponent {
   // * DIRECTIVES
-  @Input({ required: true }) link!: string;
+  @Input() link!: string;
   @Input() buttonText?: string;
   @Input() buttonTarget: '_blank' | '_parent' | '_self' | '_top' | '_self' = '_top';
   @Input() buttonModifier = 'primary';

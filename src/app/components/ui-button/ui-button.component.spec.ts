@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UiLinkComponent } from './ui-link.component';
+import { UiButtonComponent } from './ui-button.component';
 
 describe('UiLinkComponent', () => {
-  let component: UiLinkComponent;
-  let fixture: ComponentFixture<UiLinkComponent>;
+  let component: UiButtonComponent;
+  let fixture: ComponentFixture<UiButtonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UiLinkComponent],
+      imports: [UiButtonComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UiLinkComponent);
+    fixture = TestBed.createComponent(UiButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
