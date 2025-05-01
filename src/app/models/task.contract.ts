@@ -1,5 +1,5 @@
 export default interface Task {
-  id: number;
+  id: string;
   date: Date;
   name: string;
   effort: number;

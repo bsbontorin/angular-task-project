@@ -1,15 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
+import { UiModalComponent } from 'app/components/ui-modal/ui-modal.component';
+import TaskWithCallbacks from 'app/models/task-with-callbacks.contract';
 import Task from 'app/models/task.contract';
 import { TaskServiceService } from 'app/services/task.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 
 import { UiButtonComponent } from './../../components/ui-button/ui-button.component';
 import { TableColumns } from './enums/table-columns';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { TaskAction } from './enums/task-action';
 
 @Component({
   selector: 'home',
-  imports: [AsyncPipe, DatePipe, UiButtonComponent],
+  imports: [AsyncPipe, DatePipe, UiButtonComponent, UiModalComponent],
   template: `
     <section class="container">
       <h1 class="container__title">Activity table</h1>
@@ -40,8 +43,8 @@ import { AsyncPipe, DatePipe } from '@angular/common';
               <td>{{ task.responsible }}</td>
               <td>
                 <div class="table__actions">
-                  <ui-button [buttonModifier]="'alert'" [buttonText]="'Edit'" />
-                  <ui-button [buttonModifier]="'danger'" [buttonText]="'Delete'" />
+                  <ui-button [buttonModifier]="'alert'" [buttonText]="'Edit'" (callback)="task.updateCallback()" />
+                  <ui-button [buttonModifier]="'danger'" [buttonText]="'Delete'" (callback)="task.deleteCallback()" />
                 </div>
               </td>
             </tr>
@@ -55,6 +58,20 @@ import { AsyncPipe, DatePipe } from '@angular/common';
         </table>
       </div>
     </section>
+
+    <!-- custom modal to delete tasks -->
+    <ui-modal #modal>
+      <div class="delete-modal__container">
+        @if(modal.data$ | async; as data) {
+        <p>{{ data?.name }}</p>
+
+        <div class="delete-modal__actions">
+          <ui-button [buttonModifier]="'danger'" [buttonText]="'Delete'" (callback)="closeModal(data.action, data.id)" />
+          <ui-button [buttonModifier]="'secondary'" [buttonText]="'Cancel'" (callback)="closeModal()" />
+        </div>
+        }
+      </div>
+    </ui-modal>
   `,
   styles: [
     `
@@ -140,6 +157,16 @@ import { AsyncPipe, DatePipe } from '@angular/common';
           }
         }
       }
+
+      .delete-modal__container {
+        @include flexbox(column, flex-start, center);
+
+        & .delete-modal__actions {
+          @include flexbox(row, center center);
+          gap: 1rem;
+          margin-top: 1rem;
+        }
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -148,13 +175,72 @@ export class HomeComponent {
   // * INJECTS
   private taskService = inject(TaskServiceService);
 
+  // * DIRECTIVES
+  @ViewChild('modal') modal!: UiModalComponent;
+
+  // * OBSERVABLES
+  private updateDataSource$ = new BehaviorSubject<boolean>(true);
+
   // * VARIABLES
   public readonly displayedColumns: readonly TableColumns[] = Object.values(TableColumns) as readonly TableColumns[];
-
-  public tasks$ = this.getTasks$;
+  public readonly tasks$ = this.getTasks$;
 
   // * GETs
-  private get getTasks$(): Observable<Array<Task>> {
-    return this.taskService.getTasks$();
+  private get getTasks$(): Observable<Array<TaskWithCallbacks>> {
+    return this.updateDataSource$.asObservable().pipe(
+      filter(Boolean),
+      switchMap(() => {
+        console.log('entrou :>> ');
+        return this.taskService.getTasks$().pipe(
+          map((response: Array<Task>) => {
+            return response.map(
+              (task): TaskWithCallbacks => ({
+                ...task,
+                updateCallback: () => this.openModal(TaskAction.UPDATE, task),
+                deleteCallback: () => this.openModal(TaskAction.DELETE, task),
+              }),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
+  // * METHODS
+  public openModal(action: TaskAction, task: Task): void {
+    const titles = {
+      [TaskAction.CREATE]: 'Create task',
+      [TaskAction.UPDATE]: 'Update task',
+      [TaskAction.DELETE]: 'Do you really want to delete this task?',
+    };
+
+    this.modal.open({ ...task, action, title: titles[action] });
+  }
+
+  public closeModal(action?: TaskAction, taskId?: string): void {
+    const messages = {
+      [TaskAction.CREATE]: 'Task created successfully!',
+      [TaskAction.UPDATE]: 'Task updated successfully!',
+      [TaskAction.DELETE]: 'Task deleted successfully!',
+    };
+
+    let observable = of();
+
+    if (action === TaskAction.DELETE && taskId) {
+      observable = this.taskService.deleteTask$(taskId);
+    }
+
+    observable
+      .pipe(
+        take(1),
+        tap((response) => {
+          alert(messages[action!]);
+          console.log('response :>> ', response);
+          this.updateDataSource$.next(true);
+        }),
+      )
+      .subscribe();
+
+    this.modal.close();
   }
 }

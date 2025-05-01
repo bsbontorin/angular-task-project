@@ -1,8 +1,11 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import UiModalData from 'app/models/ui-modal-data.contract';
+import { BehaviorSubject, map, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'ui-modal',
-  imports: [],
+  imports: [AsyncPipe],
   template: `
     <dialog #dialogRef class="ui-modal" (click)="handleBackdrop($event)">
       <section class="ui-modal__content" (click)="$event.stopPropagation()">
@@ -10,7 +13,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Ou
           <div class="ui-modal__actions">
             <button class="ui-modal__close" (click)="close()">×</button>
           </div>
-          <h2 class="ui-modal__title">{{ title }}</h2>
+          <h2 class="ui-modal__title">{{ title$ | async }}</h2>
         </header>
 
         <main class="ui-modal__main">
@@ -72,7 +75,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Ou
           & .ui-modal__main {
             @include flexbox(column, center, center);
             width: 100%;
-            padding: 1rem;
+            padding: 0rem 1rem 1rem 1rem;
           }
         }
       }
@@ -81,14 +84,30 @@ import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Ou
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UiModalComponent {
+  // * VARIABLES
+  private modalData = new BehaviorSubject<UiModalData | undefined>(undefined);
+
+  public data$ = this.getData$;
+  public title$ = this.getTitle$;
+
   // * DIRECTIVES
-  @Input({ required: true }) title: string = 'Modal Title';
+  @Input() modalTitle?: string = '';
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('dialogRef', { static: true }) dialogRef!: ElementRef<HTMLDialogElement>;
 
+  // * GETs
+  public get getTitle$(): Observable<string> {
+    if (!this.modalData) {
+      return of(`${this.modalTitle || 'Modal Title'}`);
+    }
+    return this.modalData.asObservable().pipe(map((data) => data?.title ?? this.modalTitle ?? ''));
+  }
+
   // * METHODS
-  public open(): void {
+  public open(data?: UiModalData): void {
+    this.modalData.next(data);
+
     this.dialogRef.nativeElement.showModal();
   }
 
@@ -99,5 +118,9 @@ export class UiModalComponent {
 
   public handleBackdrop(event: MouseEvent): void {
     event.stopPropagation();
+  }
+
+  public get getData$(): Observable<UiModalData | undefined> {
+    return this.modalData.asObservable();
   }
 }

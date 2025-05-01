@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'ui-button',
@@ -51,6 +51,10 @@ import { ChangeDetectionStrategy, Component, Input, Output } from '@angular/core
         &.success {
           background-color: var(--green-500);
         }
+
+        &.secondary {
+          background-color: var(--slate-400);
+        }
       }
     `,
   ],
@@ -62,10 +66,10 @@ export class UiButtonComponent {
   @Input() buttonText?: string;
   @Input() buttonTarget: '_blank' | '_parent' | '_self' | '_top' | '_self' = '_top';
   @Input() buttonModifier = 'primary';
-  @Output() callback?: () => void;
+  @Output() callback = new EventEmitter<void>();
 
   public handleClick(event: MouseEvent): void {
-    this.callback && event.preventDefault();
-    this.callback?.();
+    !this.link && event.preventDefault();
+    this.callback.emit();
   }
 }
