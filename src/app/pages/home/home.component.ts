@@ -1,6 +1,7 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
 import { UiModalComponent } from 'app/components/ui-modal/ui-modal.component';
+import TableColumn from 'app/models/table-column.contract';
 import TaskWithCallbacks from 'app/models/task-with-callbacks.contract';
 import Task from 'app/models/task.contract';
 import { TaskServiceService } from 'app/services/task.service';
@@ -9,6 +10,7 @@ import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } fr
 import { UiButtonComponent } from './../../components/ui-button/ui-button.component';
 import { TableColumns } from './enums/table-columns';
 import { TaskAction } from './enums/task-action';
+import TableSort from 'app/models/table-sort.contract';
 
 @Component({
   selector: 'home',
@@ -19,15 +21,19 @@ import { TaskAction } from './enums/task-action';
 
       <div class="container__actions">
         <ui-button [buttonModifier]="'success'" [buttonText]="'Add Task'" />
-        <span>sort</span>
       </div>
 
       <div class="container__table">
         <table class="table">
           <thead class="table__head">
             <tr>
-              @for(column of displayedColumns; track column) {
-              <th>{{ column }}</th>
+              @for(column of displayedColumns; track column.key) {
+              <th>
+                <div class="th__text">
+                  <span class="th__text__name">{{ column.value }}</span>
+                  <span class="th__text__sort" (click)="sortColumn(column)">{{ sortIcon$(column) | async }}</span>
+                </div>
+              </th>
               }
             </tr>
           </thead>
@@ -113,6 +119,20 @@ import { TaskAction } from './enums/task-action';
               & th {
                 padding: 1rem;
                 background-color: var(--neutral-800);
+
+                & .th__text {
+                  @include flexbox(row, center, center);
+                  gap: 0.5rem;
+                  cursor: pointer;
+                }
+
+                &:last-child {
+                  & .th__text {
+                    &__sort {
+                      display: none;
+                    }
+                  }
+                }
               }
 
               & th:first-child {
@@ -179,10 +199,16 @@ export class HomeComponent {
   @ViewChild('modal') modal!: UiModalComponent;
 
   // * OBSERVABLES
+  private filterDataSource$ = new BehaviorSubject<TableSort>({ column: { key: '', value: '' }, direction: 'asc' });
+
   private updateDataSource$ = new BehaviorSubject<boolean>(true);
 
   // * VARIABLES
-  public readonly displayedColumns: readonly TableColumns[] = Object.values(TableColumns) as readonly TableColumns[];
+  public readonly displayedColumns: Array<TableColumn> = Object.entries(TableColumns).map(([key, value]) => ({
+    key,
+    value,
+  }));
+
   public readonly tasks$ = this.getTasks$;
 
   // * GETs
@@ -192,12 +218,33 @@ export class HomeComponent {
       switchMap(() => {
         console.log('entrou :>> ');
         return this.taskService.getTasks$().pipe(
-          map((response: Array<Task>) => {
-            return response.map(
-              (task): TaskWithCallbacks => ({
-                ...task,
-                updateCallback: () => this.openModal(TaskAction.UPDATE, task),
-                deleteCallback: () => this.openModal(TaskAction.DELETE, task),
+          switchMap((response) => {
+            return this.filterDataSource$.asObservable().pipe(
+              map(({ column, direction }) => {
+                const mappedTasks = response.map(
+                  (task): TaskWithCallbacks => ({
+                    ...task,
+                    updateCallback: () => this.openModal(TaskAction.UPDATE, task),
+                    deleteCallback: () => this.openModal(TaskAction.DELETE, task),
+                  }),
+                );
+
+                if (!direction) {
+                  return mappedTasks;
+                }
+
+                return mappedTasks.sort((a, b) => {
+                  const valueA = a[column.key as keyof Task];
+                  const valueB = b[column.key as keyof Task];
+
+                  const isNumeric = !isNaN(+valueA) && !isNaN(+valueB);
+
+                  if (isNumeric) {
+                    return direction === 'asc' ? +valueA - +valueB : +valueB - +valueA;
+                  }
+
+                  return direction === 'asc' ? String(valueA).localeCompare(String(valueB)) : String(valueB).localeCompare(String(valueA));
+                });
               }),
             );
           }),
@@ -207,6 +254,21 @@ export class HomeComponent {
   }
 
   // * METHODS
+  public sortIcon$(column: TableColumn): Observable<string> {
+    return this.filterDataSource$.pipe(
+      map(({ column: activeColumn, direction }) => {
+        if (activeColumn.key !== column.key) return '⇅';
+        return direction === 'asc' ? '▲' : direction === 'desc' ? '▼' : '⇅';
+      }),
+    );
+  }
+
+  public sortColumn(column: TableColumn): void {
+    const { column: oldColumn, direction } = this.filterDataSource$.getValue();
+    const nextDirection = column.key !== oldColumn.key ? 'asc' : direction === null ? 'asc' : direction === 'asc' ? 'desc' : null;
+    this.filterDataSource$.next({ column, direction: nextDirection });
+  }
+
   public openModal(action: TaskAction, task: Task): void {
     const titles = {
       [TaskAction.CREATE]: 'Create task',

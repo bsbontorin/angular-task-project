@@ -2,93 +2,93 @@
   "tasks": [
     {
       "id": "1",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "name": "Design wireframes",
+      "description": "Initial design sketches for dashboard",
+      "date": "2025-04-22T09:18:00.000Z",
+      "effort": 5,
+      "status": "in progress",
+      "responsible": "Alice Martins"
     },
     {
       "id": "2",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
+      "name": "API integration",
+      "description": "Connect frontend with backend endpoints",
+      "date": "2025-04-18T14:50:00.000Z",
       "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "status": "done",
+      "responsible": "Bruno Costa"
     },
     {
       "id": "3",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
+      "name": "Fix login bug",
+      "description": "Resolve issue with login token expiration",
+      "date": "2025-04-28T11:05:00.000Z",
+      "effort": 3,
       "status": "todo",
-      "responsible": "Name of responsible here"
+      "responsible": "Camila Duarte"
     },
     {
       "id": "4",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "name": "Optimize database",
+      "description": "Improve indexing on user tables",
+      "date": "2025-04-15T08:45:00.000Z",
+      "effort": 13,
+      "status": "in progress",
+      "responsible": "Daniel Rocha"
     },
     {
       "id": "5",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "name": "Write documentation",
+      "description": "Draft for public API documentation",
+      "date": "2025-04-10T17:20:00.000Z",
+      "effort": 6,
+      "status": "done",
+      "responsible": "Elisa Ramos"
     },
     {
       "id": "6",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
+      "name": "Test payment flow",
+      "description": "End-to-end test with Stripe integration",
+      "date": "2025-04-29T13:30:00.000Z",
+      "effort": 4,
       "status": "todo",
-      "responsible": "Name of responsible here"
+      "responsible": "Felipe Lima"
     },
     {
       "id": "7",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "name": "Email template setup",
+      "description": "HTML/CSS for transactional emails",
+      "date": "2025-04-25T16:00:00.000Z",
+      "effort": 7,
+      "status": "in progress",
+      "responsible": "Gabriela Torres"
     },
     {
       "id": "8",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
+      "name": "Security audit",
+      "description": "Check vulnerabilities in dependencies",
+      "date": "2025-04-19T07:55:00.000Z",
+      "effort": 10,
       "status": "todo",
-      "responsible": "Name of responsible here"
+      "responsible": "Henrique Souza"
     },
     {
       "id": "9",
-      "name": "Name of your task here",
-      "description": "Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "name": "Analytics dashboard",
+      "description": "Build interface for metrics display",
+      "date": "2025-04-30T14:25:00.000Z",
+      "effort": 9,
+      "status": "done",
+      "responsible": "Isabela Mendes"
     },
     {
       "id": "10",
-      "name": "Name of your task here Name of your task here Name of your task here Name of your task here Name of your task here",
-      "description": "Description here Description here Description here Description here Description here Description here Description here",
-      "date": "2025-04-30T14:25:36.123Z",
-      "effort": 8,
-      "status": "todo",
-      "responsible": "Name of responsible here"
+      "name": "Content review",
+      "description": "Proofread user-facing texts",
+      "date": "2025-04-12T10:40:00.000Z",
+      "effort": 2,
+      "status": "in progress",
+      "responsible": "João Ferreira"
     }
   ]
 }

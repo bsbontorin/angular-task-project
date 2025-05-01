@@ -1,11 +1,11 @@
 export enum TableColumns {
-  Id = 'id',
-  Date = 'Creation Date',
-  Name = 'Name',
-  Effort = 'Time to Complete',
-  Status = 'Status',
-  Description = 'Description',
-  Responsible = 'Responsible',
+  id = 'id',
+  date = 'Creation Date',
+  name = 'Name',
+  effort = 'Time to Complete',
+  status = 'Status',
+  description = 'Description',
+  responsible = 'Responsible',
 
-  Actions = 'Actions',
+  actions = 'Actions',
 }
