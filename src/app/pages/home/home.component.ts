@@ -1,7 +1,10 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
 import { UiModalComponent } from 'app/components/ui-modal/ui-modal.component';
+import { UiPaginatorComponent } from 'app/components/ui-paginator/ui-paginator.component';
+import PaginatorData from 'app/models/paginator-data.contract';
 import TableColumn from 'app/models/table-column.contract';
+import TableSort from 'app/models/table-sort.contract';
 import TaskWithCallbacks from 'app/models/task-with-callbacks.contract';
 import Task from 'app/models/task.contract';
 import { TaskServiceService } from 'app/services/task.service';
@@ -10,11 +13,10 @@ import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } fr
 import { UiButtonComponent } from './../../components/ui-button/ui-button.component';
 import { TableColumns } from './enums/table-columns';
 import { TaskAction } from './enums/task-action';
-import TableSort from 'app/models/table-sort.contract';
 
 @Component({
   selector: 'home',
-  imports: [AsyncPipe, DatePipe, UiButtonComponent, UiModalComponent],
+  imports: [AsyncPipe, DatePipe, UiButtonComponent, UiModalComponent, UiPaginatorComponent],
   template: `
     <section class="container">
       <h1 class="container__title">Activity table</h1>
@@ -58,7 +60,11 @@ import TableSort from 'app/models/table-sort.contract';
           </tbody>
           <tfoot class="table__foot">
             <tr>
-              <td [attr.colspan]="displayedColumns.length">paginator here</td>
+              <td [attr.colspan]="displayedColumns.length">
+                @if(getPaginatorData$ | async; as paginator) {
+                <ui-paginator [page]="paginator.page" [total]="paginator.total" (pageChange)="onPagePaginatorChange($event)"></ui-paginator>
+                }
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -163,6 +169,7 @@ import TableSort from 'app/models/table-sort.contract';
                 padding: 1rem;
                 border-top: 2px solid var(--gray-600);
                 text-align: right;
+                border-radius: 0 0 0.5rem 0.5rem;
                 background-color: var(--gray-800);
               }
             }
@@ -200,8 +207,9 @@ export class HomeComponent {
 
   // * OBSERVABLES
   private filterDataSource$ = new BehaviorSubject<TableSort>({ column: { key: '', value: '' }, direction: 'asc' });
-
   private updateDataSource$ = new BehaviorSubject<boolean>(true);
+
+  public paginatorDataSource$ = new BehaviorSubject<PaginatorData>({ page: 1, pageSize: 5, total: 5 });
 
   // * VARIABLES
   public readonly displayedColumns: Array<TableColumn> = Object.entries(TableColumns).map(([key, value]) => ({
@@ -218,6 +226,9 @@ export class HomeComponent {
       switchMap(() => {
         console.log('entrou :>> ');
         return this.taskService.getTasks$().pipe(
+          tap((response) => {
+            this.paginatorDataSource$.next({ page: 1, pageSize: 5, total: response?.length || 5 });
+          }),
           switchMap((response) => {
             return this.filterDataSource$.asObservable().pipe(
               map(({ column, direction }) => {
@@ -246,11 +257,24 @@ export class HomeComponent {
                   return direction === 'asc' ? String(valueA).localeCompare(String(valueB)) : String(valueB).localeCompare(String(valueA));
                 });
               }),
+              switchMap((mappedResponse) => {
+                return this.paginatorDataSource$.asObservable().pipe(
+                  map(({ page, pageSize }) => {
+                    const start = (page - 1) * pageSize;
+                    const end = start + pageSize;
+                    return mappedResponse.slice(start, end);
+                  }),
+                );
+              }),
             );
           }),
         );
       }),
     );
+  }
+
+  public get getPaginatorData$(): Observable<PaginatorData> {
+    return this.paginatorDataSource$.asObservable();
   }
 
   // * METHODS
@@ -267,6 +291,11 @@ export class HomeComponent {
     const { column: oldColumn, direction } = this.filterDataSource$.getValue();
     const nextDirection = column.key !== oldColumn.key ? 'asc' : direction === null ? 'asc' : direction === 'asc' ? 'desc' : null;
     this.filterDataSource$.next({ column, direction: nextDirection });
+  }
+
+  public onPagePaginatorChange(event: any): void {
+    const oldValue = this.paginatorDataSource$.getValue();
+    this.paginatorDataSource$.next({ ...oldValue, page: event });
   }
 
   public openModal(action: TaskAction, task: Task): void {
