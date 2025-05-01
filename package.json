@@ -6,9 +6,14 @@
     "all": "concurrently \"ng serve\" \"npm run api\"",
     "api": "npx json-server --watch db.json --port 3000",
     "start": "ng serve",
+    "watch": "ng build --watch --c=development",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "build:dev:ci": "ng build --c=development",
+    "build:prod:ci": "ng build --c=production",
+    "test": "ng test",
+    "test:dev:ci": "ng test --c=development",
+    "test:prod:ci": "ng test --c=production",
+    "coverage": "ng test --no-watch --code-coverage"
   },
   "private": true,
   "dependencies": {
