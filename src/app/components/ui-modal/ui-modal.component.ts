@@ -1,7 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import Task from 'app/models/task.contract';
-import UiModalData from 'app/models/ui-modal-data.contract';
+import UiModalData from 'app/models/ui-modal-data.interface';
 import { BehaviorSubject, map, Observable, of } from 'rxjs';
 
 @Component({

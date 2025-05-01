@@ -2,11 +2,11 @@ import { AsyncPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, ViewChild } from '@angular/core';
 import { UiModalComponent } from 'app/components/ui-modal/ui-modal.component';
 import { UiPaginatorComponent } from 'app/components/ui-paginator/ui-paginator.component';
-import PaginatorData from 'app/models/paginator-data.contract';
-import TableColumn from 'app/models/table-column.contract';
-import TableSort from 'app/models/table-sort.contract';
-import TaskWithCallbacks from 'app/models/task-with-callbacks.contract';
-import Task from 'app/models/task.contract';
+import PaginatorData from 'app/models/paginator-data.interface';
+import TableColumn from 'app/models/table-column.interface';
+import TableSort from 'app/models/table-sort.interface';
+import TaskWithCallbacks from 'app/models/task-with-callbacks.interface';
+import Task from 'app/models/task.interface';
 import { TaskServiceService } from 'app/services/task.service';
 import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 
@@ -14,7 +14,7 @@ import { UiButtonComponent } from './../../components/ui-button/ui-button.compon
 import { TableColumns } from './enums/table-columns';
 import { TaskAction } from './enums/task-action';
 import { UiFormComponent } from 'app/components/ui-form/ui-form.component';
-import FormSubmit from 'app/models/form-submit.contract';
+import FormSubmit from 'app/models/form-submit.interface';
 
 @Component({
   selector: 'home',

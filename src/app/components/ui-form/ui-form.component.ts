@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import FormSubmit from 'app/models/form-submit.contract';
-import Task from 'app/models/task.contract';
+import FormSubmit from 'app/models/form-submit.interface';
+import Task from 'app/models/task.interface';
 import { TaskAction } from 'app/pages/home/enums/task-action';
+
 import { UiButtonComponent } from '../ui-button/ui-button.component';
 
 @Component({

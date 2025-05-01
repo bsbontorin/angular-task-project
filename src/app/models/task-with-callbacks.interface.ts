@@ -1,4 +1,4 @@
-import Task from './task.contract';
+import Task from './task.interface';
 
 export default interface TaskWithCallbacks extends Task {
   updateCallback: () => void;

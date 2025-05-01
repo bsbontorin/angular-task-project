@@ -1,4 +1,4 @@
-import TableColumn from './table-column.contract';
+import TableColumn from './table-column.interface';
 
 export default interface TableSort {
   column: TableColumn;
