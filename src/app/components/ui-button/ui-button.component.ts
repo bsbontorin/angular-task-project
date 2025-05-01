@@ -16,6 +16,9 @@ import { ChangeDetectionStrategy, Component, Input, Output } from '@angular/core
   `,
   styles: [
     `
+      @use 'mixins' as *;
+      @use 'variables' as *;
+
       .ui-button {
         color: var(--white);
         all: unset;
